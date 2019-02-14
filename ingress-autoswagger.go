@@ -9,7 +9,6 @@ import (
 	"text/template"
 )
 
-
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
 	if servicesEnv == "" {
@@ -49,7 +48,7 @@ func createServicesJson(servicesEnv string) string {
 
 	var servicesList []map[string]string
 	for service, params := range services {
-		if params["swagger"] != false {
+		if (params["swagger"] != false) && (params["skip"] != true) {
 			serviceMap := map[string]string{"name": service, "url": "/" + service + "/v2/api-docs"}
 
 			servicesList = append(servicesList, serviceMap)
