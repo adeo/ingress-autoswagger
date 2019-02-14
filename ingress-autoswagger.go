@@ -18,8 +18,8 @@ func main() {
 
 	services := createServicesJson(servicesEnv)
 	if services == "null" {
-		log.Println("Incorrect variable \"SERVICES\"")
-		os.Exit(2)
+		log.Println("Incorrect variable \"SERVICES\" or no services with swagger. Exit")
+		os.Exit(0)
 	}
 
 	log.Println("Server started on 3000 port!")
@@ -48,7 +48,8 @@ func createServicesJson(servicesEnv string) string {
 
 	var servicesList []map[string]string
 	for service, params := range services {
-		if (params["swagger"] != false) && (params["skip"] != true) {
+		if (params["swagger"] != false) && (params["skip"] != true) && (params["replicas"] != nil) {
+			log.Println("Generating service: " + service)
 			serviceMap := map[string]string{"name": service, "url": "/" + service + "/v2/api-docs"}
 
 			servicesList = append(servicesList, serviceMap)
