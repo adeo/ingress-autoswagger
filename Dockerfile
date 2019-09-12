@@ -9,7 +9,9 @@ FROM golang:${GO_VERSION}-alpine AS builder
 # run the process as an unprivileged user.
 RUN mkdir /user && \
     echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
-    echo 'nobody:x:65534:' > /user/group
+    echo 'nobody:x:65534:' > /user/group && \
+    echo 'https://art.lmru.tech/apk-remote-alpine/v3.10/main' > /etc/apk/repositories && \
+    echo 'https://art.lmru.tech/apk-remote-alpine/v3.10/community' > /etc/apk/repositories
 
 # Install the Certificate-Authority certificates for the app to be able to make
 # calls to HTTPS endpoints.
