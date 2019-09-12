@@ -12,7 +12,7 @@ node('dockerhost') {
                 if (env.CHANGE_ID) {
                     lint()
                 } else {
-                    image_build_and_push(docker_image_name)
+                    image_build_and_push()
                 }
 
             }
@@ -28,7 +28,7 @@ def lint() {
     // not needed here
 }
 
-def image_build_and_push(docker_image_name) {
+def image_build_and_push() {
     def image = docker.build("${env.DOCKER_IMAGE}:2.0", ".")
     try {
         docker.withRegistry("https://$DOCKER_IMAGE", "$DOCKER_REGISTRY_CREDS") {
