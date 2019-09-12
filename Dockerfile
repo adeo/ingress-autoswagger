@@ -15,7 +15,7 @@ RUN mkdir /user && \
 
 # Install the Certificate-Authority certificates for the app to be able to make
 # calls to HTTPS endpoints.
-RUN apk add --no-cache ca-certificates git
+RUN apk add -U --no-cache ca-certificates git
 
 # Set the environment variables for the go command:
 # * CGO_ENABLED=0 to build a statically-linked executable
