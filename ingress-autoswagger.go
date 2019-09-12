@@ -48,7 +48,7 @@ func createServicesJson(servicesEnv string) string {
 
 	var servicesList []map[string]string
 	for service, params := range services {
-		if (params["swagger"] != false) && (params["skip"] != true) && (params["replicas"] != nil) {
+		if (params["swagger"] != false) && (params["skip"] != true) {
 			log.Println("Generating service: " + service)
 			serviceMap := map[string]string{"name": service, "url": "/" + service + "/v2/api-docs"}
 
