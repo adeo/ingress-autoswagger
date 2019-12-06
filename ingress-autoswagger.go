@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"text/template"
 )
 
@@ -56,6 +57,9 @@ func createServicesJson(servicesEnv string) string {
 		}
 	}
 
+	sort.SliceStable(servicesList, func(i, j int) bool {
+		return servicesList[i]["name"] < servicesList[j]["name"]
+	})
 	resultJson, _ := json.Marshal(servicesList)
 
 	return string(resultJson)
