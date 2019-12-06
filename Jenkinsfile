@@ -1,4 +1,5 @@
 node('dockerhost') {
+    env.TAG = '2.1'
     env.DOCKER_IMAGE = 'docker-devops.art.lmru.tech/bricks/ingress-autoswagger'
     env.DOCKER_REGISTRY_CREDS = 'lm-sa-devops'
 
@@ -29,13 +30,13 @@ def lint() {
 }
 
 def image_build_and_push() {
-    def image = docker.build("${env.DOCKER_IMAGE}:2.0", ".")
+    def image = docker.build("${env.DOCKER_IMAGE}:${env.TAG}", ".")
     try {
         docker.withRegistry("https://$DOCKER_IMAGE", "$DOCKER_REGISTRY_CREDS") {
-            image.push('2.0')
+            image.push('$TAG')
         }
     }
     finally {
-        sh "docker rmi $DOCKER_IMAGE:2.0"
+        sh "docker rmi $DOCKER_IMAGE:$TAG"
     }
 }
