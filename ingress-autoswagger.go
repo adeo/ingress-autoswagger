@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gobuffalo/packr"
 	"log"
 	"net/http"
@@ -12,12 +13,20 @@ import (
 
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
-	//servicesEnv := "app1,app2,app3"
+	//servicesEnv := "[\"artmagrepository\",\"complements-generator\",\"eligibility-calculator\",\"family\",\"maskrepository\",\"mediarepository\",\"offerorchestrator\",\"pricerepository\",\"productrepository\",\"reportpriceftp\",\"reportproductga\",\"reportstockftp\",\"search-engine\",\"search-suggestions\",\"stockrepository\",\"storerepository\",\"substitutes-generator\",\"transliteration\",\"variants\",\"visibility\"]"
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
 		os.Exit(2)
 	}
-	services := strings.Split(servicesEnv, ",")
+	services := make([]string, 0)
+	parsed := Map(strings.Split(servicesEnv[1:len(servicesEnv)-1], ","), func(s string) interface{} {
+		return s[1 : len(s)-1]
+	})
+
+	for _, str := range parsed {
+		services = append(services, fmt.Sprintf("%v", str))
+	}
+
 	log.Println("Server started on 3000 port!")
 	log.Println(services)
 	html, err := packr.NewBox("./templates").FindString("index.html")
@@ -32,7 +41,9 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		available := Filter(services, func(service string) bool {
-			_, err := http.Get("http://" + service + "/" + service + "/v2/api-docs")
+			url := "http://" + service + "/v2/api-docs"
+			log.Println("Requesting: " + url)
+			_, err := http.Get(url)
 			return err == nil
 		})
 
