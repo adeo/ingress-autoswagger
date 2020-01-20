@@ -18,6 +18,7 @@ func main() {
 	if !exists {
 		oasVersionEnv = "v2"
 	}*/
+	log.Println("Using OpenAPI version " + oasVersionEnv)
 	//servicesEnv := "[\"artmagrepository\",\"complements-generator\",\"eligibility-calculator\",\"family\",\"maskrepository\",\"mediarepository\",\"offerorchestrator\",\"pricerepository\",\"productrepository\",\"reportpriceftp\",\"reportproductga\",\"reportstockftp\",\"search-engine\",\"search-suggestions\",\"stockrepository\",\"storerepository\",\"substitutes-generator\",\"transliteration\",\"variants\",\"visibility\"]"
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
