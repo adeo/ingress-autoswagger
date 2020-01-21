@@ -14,11 +14,10 @@ import (
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
 	namespaceHost := os.Getenv("NAMESPACE_HOST")
-	oasVersionEnv := "v3"
-	/*oasVersionEnv, exists := os.LookupEnv("OAS_VERSION")
+	oasVersionEnv, exists := os.LookupEnv("OAS_VERSION")
 	if !exists {
 		oasVersionEnv = "v2"
-	}*/
+	}
 	log.Println("Using OpenAPI version " + oasVersionEnv)
 	log.Println("Namespace host " + namespaceHost)
 	//servicesEnv := "[\"artmagrepository\",\"complements-generator\",\"eligibility-calculator\",\"family\",\"maskrepository\",\"mediarepository\",\"offerorchestrator\",\"pricerepository\",\"productrepository\",\"reportpriceftp\",\"reportproductga\",\"reportstockftp\",\"search-engine\",\"search-suggestions\",\"stockrepository\",\"storerepository\",\"substitutes-generator\",\"transliteration\",\"variants\",\"visibility\"]"
