@@ -48,7 +48,7 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		available := Filter(services, func(service string) bool {
-			url := "http://" + namespaceHost + "/" + service + "/" + oasVersionEnv + "/api-docs"
+			url := "http://" + service + "/" + oasVersionEnv + "/api-docs"
 			log.Println("Requesting: " + url)
 			_, err := http.Get(url)
 			return err == nil
@@ -57,7 +57,7 @@ func main() {
 		resultJson, _ := json.Marshal(Map(available, func(service string) interface{} {
 			return map[string]string{
 				"name": service,
-				"url":  "/" + namespaceHost + "/" + service + "/" + oasVersionEnv + "/api-docs",
+				"url":  "/" + service + "/" + oasVersionEnv + "/api-docs",
 			}
 		}))
 		_ = templateEngine.Execute(w, string(resultJson))
