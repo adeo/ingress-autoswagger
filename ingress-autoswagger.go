@@ -13,12 +13,14 @@ import (
 
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
+	namespaceHost := os.Getenv("NAMESPACE_HOST")
 	oasVersionEnv := "v3"
 	/*oasVersionEnv, exists := os.LookupEnv("OAS_VERSION")
 	if !exists {
 		oasVersionEnv = "v2"
 	}*/
 	log.Println("Using OpenAPI version " + oasVersionEnv)
+	log.Println("Namespace host " + namespaceHost)
 	//servicesEnv := "[\"artmagrepository\",\"complements-generator\",\"eligibility-calculator\",\"family\",\"maskrepository\",\"mediarepository\",\"offerorchestrator\",\"pricerepository\",\"productrepository\",\"reportpriceftp\",\"reportproductga\",\"reportstockftp\",\"search-engine\",\"search-suggestions\",\"stockrepository\",\"storerepository\",\"substitutes-generator\",\"transliteration\",\"variants\",\"visibility\"]"
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
@@ -47,7 +49,7 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		available := Filter(services, func(service string) bool {
-			url := "http://" + service + "/" + oasVersionEnv + "/api-docs"
+			url := "http://" + namespaceHost + "/" + service + "/" + oasVersionEnv + "/api-docs"
 			log.Println("Requesting: " + url)
 			_, err := http.Get(url)
 			return err == nil
@@ -56,7 +58,7 @@ func main() {
 		resultJson, _ := json.Marshal(Map(available, func(service string) interface{} {
 			return map[string]string{
 				"name": service,
-				"url":  "/" + service + "/" + oasVersionEnv + "/api-docs",
+				"url":  "/" + namespaceHost + "/" + service + "/" + oasVersionEnv + "/api-docs",
 			}
 		}))
 		_ = templateEngine.Execute(w, string(resultJson))
