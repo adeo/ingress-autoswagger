@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"text/template"
 )
 
@@ -47,14 +48,21 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		available := Filter(services, func(service string) bool {
-			url := "http://" + service + "/" + oasVersionEnv + "/api-docs"
-			log.Println("Requesting: " + url)
-			_, err := http.Get(url)
-			return err == nil
-		})
-
-		resultJson, _ := json.Marshal(Map(available, func(service string) interface{} {
+		serviceAvailability := make(map[string]bool)
+		var wg sync.WaitGroup
+		for _, service := range services {
+			wg.Add(1)
+			go checkService(service, oasVersionEnv, serviceAvailability, &wg)
+		}
+		wg.Wait()
+		availableServices := make([]string, 0, len(services))
+		for service, available := range serviceAvailability {
+			if available {
+				availableServices = append(availableServices, service)
+			}
+		}
+		log.Println("Available services: " + strings.Join(availableServices, ", "))
+		resultJson, _ := json.Marshal(Map(availableServices, func(service string) interface{} {
 			return map[string]string{
 				"name": service,
 				"url":  "/" + service + "/" + oasVersionEnv + "/api-docs",
@@ -65,14 +73,11 @@ func main() {
 	_ = http.ListenAndServe(":3000", nil)
 }
 
-func Filter(vs []string, f func(string) bool) []string {
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if f(v) {
-			vsf = append(vsf, v)
-		}
-	}
-	return vsf
+func checkService(service string, oasVersion string, availability map[string]bool, wg *sync.WaitGroup) {
+	defer wg.Done()
+	url := "http://" + service + "/" + oasVersion + "/api-docs"
+	_, err := http.Get(url)
+	availability[service] = err == nil
 }
 
 func Map(vs []string, f func(string) interface{}) []interface{} {
