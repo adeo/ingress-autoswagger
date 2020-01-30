@@ -14,10 +14,10 @@ After that you can run this application on Ingress root level (/) and this tool 
 ## Usage
 
 ### With docker
-docker run -it -e SERVICES="{\"config-server\":{\"swagger\":false},\"plaster-calculator\":{},\"product-binder\":{}}" nexus.lmru.adeo.com:5000/bricks/ingress-autoswagger:1.0
+docker run -it -e SERVICES="[\"plaster-calculator\",\"product-binder\"]" docker-devops.art.lmru.tech/bricks/ingress-autoswagger:3.0
 
 ### Without docker
-SERVICES="{\"config-server\":{\"swagger\":false},\"plaster-calculator\":{},\"product-binder\":{}}" go run ingress-autoswagger.go 
+SERVICES="[\"plaster-calculator\",\"product-binder\"]" go run ingress-autoswagger.go 
 
 After run you can open http://localhost:3000 in browser.
 

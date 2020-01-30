@@ -2,25 +2,34 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gobuffalo/packr"
 	"log"
 	"net/http"
 	"os"
-	"sort"
+	"strings"
+	"sync"
 	"text/template"
 )
 
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
+	oasVersionEnv, exists := os.LookupEnv("OAS_VERSION")
+	if !exists {
+		oasVersionEnv = "v2"
+	}
+	log.Println("Using OpenAPI version " + oasVersionEnv)
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
 		os.Exit(2)
 	}
+	services := make([]string, 0)
+	parsed := mapValues(strings.Split(servicesEnv[1:len(servicesEnv)-1], ","), func(s string) interface{} {
+		return s[1 : len(s)-1]
+	})
 
-	services := createServicesJson(servicesEnv)
-	if services == "null" {
-		log.Println("Incorrect variable \"SERVICES\" or no services with swagger. Exit")
-		os.Exit(0)
+	for _, str := range parsed {
+		services = append(services, fmt.Sprintf("%v", str))
 	}
 
 	log.Println("Server started on 3000 port!")
@@ -36,31 +45,42 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_ = templateEngine.Execute(w, services)
+		serviceAvailability := make(map[string]bool)
+		var wg sync.WaitGroup
+		for _, service := range services {
+			wg.Add(1)
+			go checkService(service, oasVersionEnv, serviceAvailability, &wg)
+		}
+		wg.Wait()
+		availableServices := make([]string, 0, len(services))
+		for service, available := range serviceAvailability {
+			if available {
+				availableServices = append(availableServices, service)
+			}
+		}
+		log.Println("Available services: " + strings.Join(availableServices, ", "))
+		resultJson, _ := json.Marshal(mapValues(availableServices, func(service string) interface{} {
+			return map[string]string{
+				"name": service,
+				"url":  "/" + service + "/" + oasVersionEnv + "/api-docs",
+			}
+		}))
+		_ = templateEngine.Execute(w, string(resultJson))
 	})
 	_ = http.ListenAndServe(":3000", nil)
 }
 
-func createServicesJson(servicesEnv string) string {
-	var services map[string]map[string]interface{}
-	if err := json.Unmarshal([]byte(servicesEnv), &services); err != nil {
-		panic(err)
+func checkService(service string, oasVersion string, availability map[string]bool, wg *sync.WaitGroup) {
+	defer wg.Done()
+	url := "http://" + service + "/" + oasVersion + "/api-docs"
+	_, err := http.Get(url)
+	availability[service] = err == nil
+}
+
+func mapValues(vs []string, f func(string) interface{}) []interface{} {
+	vsm := make([]interface{}, len(vs))
+	for i, v := range vs {
+		vsm[i] = f(v)
 	}
-
-	var servicesList []map[string]string
-	for service, params := range services {
-		if (params["swagger"] != false) && (params["skip"] != true) {
-			log.Println("Generating service: " + service)
-			serviceMap := map[string]string{"name": service, "url": "/" + service + "/v2/api-docs"}
-
-			servicesList = append(servicesList, serviceMap)
-		}
-	}
-
-	sort.SliceStable(servicesList, func(i, j int) bool {
-		return servicesList[i]["name"] < servicesList[j]["name"]
-	})
-	resultJson, _ := json.Marshal(servicesList)
-
-	return string(resultJson)
+	return vsm
 }
