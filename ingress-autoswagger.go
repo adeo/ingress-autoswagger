@@ -14,20 +14,17 @@ import (
 
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
-	namespaceHost := os.Getenv("NAMESPACE_HOST")
 	oasVersionEnv, exists := os.LookupEnv("OAS_VERSION")
 	if !exists {
 		oasVersionEnv = "v2"
 	}
 	log.Println("Using OpenAPI version " + oasVersionEnv)
-	log.Println("Namespace host " + namespaceHost)
-	//servicesEnv := "[\"artmagrepository\",\"complements-generator\",\"eligibility-calculator\",\"family\",\"maskrepository\",\"mediarepository\",\"offerorchestrator\",\"pricerepository\",\"productrepository\",\"reportpriceftp\",\"reportproductga\",\"reportstockftp\",\"search-engine\",\"search-suggestions\",\"stockrepository\",\"storerepository\",\"substitutes-generator\",\"transliteration\",\"variants\",\"visibility\"]"
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
 		os.Exit(2)
 	}
 	services := make([]string, 0)
-	parsed := Map(strings.Split(servicesEnv[1:len(servicesEnv)-1], ","), func(s string) interface{} {
+	parsed := mapValues(strings.Split(servicesEnv[1:len(servicesEnv)-1], ","), func(s string) interface{} {
 		return s[1 : len(s)-1]
 	})
 
@@ -62,7 +59,7 @@ func main() {
 			}
 		}
 		log.Println("Available services: " + strings.Join(availableServices, ", "))
-		resultJson, _ := json.Marshal(Map(availableServices, func(service string) interface{} {
+		resultJson, _ := json.Marshal(mapValues(availableServices, func(service string) interface{} {
 			return map[string]string{
 				"name": service,
 				"url":  "/" + service + "/" + oasVersionEnv + "/api-docs",
@@ -80,7 +77,7 @@ func checkService(service string, oasVersion string, availability map[string]boo
 	availability[service] = err == nil
 }
 
-func Map(vs []string, f func(string) interface{}) []interface{} {
+func mapValues(vs []string, f func(string) interface{}) []interface{} {
 	vsm := make([]interface{}, len(vs))
 	for i, v := range vs {
 		vsm[i] = f(v)
