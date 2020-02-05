@@ -14,7 +14,7 @@ After that you can run this application on Ingress root level (/) and this tool 
 ## Usage
 
 ### With docker
-docker run -it -e SERVICES="[\"plaster-calculator\",\"product-binder\"]" docker-devops.art.lmru.tech/bricks/ingress-autoswagger:3.0
+docker run -it -e SERVICES="[\"plaster-calculator\",\"product-binder\"]" docker-devops.art.lmru.tech/bricks/ingress-autoswagger:3.1
 
 ### Without docker
 SERVICES="[\"plaster-calculator\",\"product-binder\"]" go run ingress-autoswagger.go 
