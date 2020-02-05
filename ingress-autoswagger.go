@@ -47,9 +47,10 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		serviceAvailability := make(map[string]bool)
 		var wg sync.WaitGroup
+		var mtx = sync.Mutex{}
 		for _, service := range services {
 			wg.Add(1)
-			go checkService(service, oasVersionEnv, serviceAvailability, &wg)
+			go checkService(service, oasVersionEnv, serviceAvailability, &wg, &mtx)
 		}
 		wg.Wait()
 		availableServices := make([]string, 0, len(services))
@@ -70,11 +71,13 @@ func main() {
 	_ = http.ListenAndServe(":3000", nil)
 }
 
-func checkService(service string, oasVersion string, availability map[string]bool, wg *sync.WaitGroup) {
-	defer wg.Done()
+func checkService(service string, oasVersion string, availability map[string]bool, wg *sync.WaitGroup, m *sync.Mutex) {
 	url := "http://" + service + "/" + oasVersion + "/api-docs"
 	_, err := http.Get(url)
+	m.Lock()
 	availability[service] = err == nil
+	m.Unlock()
+	wg.Done()
 }
 
 func mapValues(vs []string, f func(string) interface{}) []interface{} {
