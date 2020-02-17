@@ -4,21 +4,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gobuffalo/packr"
+	"gopkg.in/robfig/cron.v3"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"text/template"
 )
 
+//service to oas version
+var cachedAvailableServices = make([]map[string]string, 0)
+
 func main() {
 	servicesEnv := os.Getenv("SERVICES")
-	oasVersionEnv, exists := os.LookupEnv("OAS_VERSION")
+	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
 	if !exists {
-		oasVersionEnv = "v2"
+		refreshCron = "@every 1m"
 	}
-	log.Println("Using OpenAPI version " + oasVersionEnv)
+
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
 		os.Exit(2)
@@ -44,40 +47,51 @@ func main() {
 		panic(err)
 	}
 
+	http.HandleFunc("/refresh", func(w http.ResponseWriter, r *http.Request) {
+		refreshCache(services)
+		w.WriteHeader(200)
+	})
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		serviceAvailability := make(map[string]bool)
-		var wg sync.WaitGroup
-		var mtx = sync.Mutex{}
-		for _, service := range services {
-			wg.Add(1)
-			go checkService(service, oasVersionEnv, serviceAvailability, &wg, &mtx)
-		}
-		wg.Wait()
-		availableServices := make([]string, 0, len(services))
-		for service, available := range serviceAvailability {
-			if available {
-				availableServices = append(availableServices, service)
-			}
-		}
-		log.Println("Available services: " + strings.Join(availableServices, ", "))
-		resultJson, _ := json.Marshal(mapValues(availableServices, func(service string) interface{} {
-			return map[string]string{
-				"name": service,
-				"url":  "/" + service + "/" + oasVersionEnv + "/api-docs",
-			}
-		}))
+		resultJson, _ := json.Marshal(cachedAvailableServices)
 		_ = templateEngine.Execute(w, string(resultJson))
 	})
+	refreshCache(services)
+
+	c := cron.New()
+	c.AddFunc(refreshCron, func() {
+		log.Println("Cron init")
+		refreshCache(services)
+		log.Println("Cron has been finished")
+	})
+	c.Start()
+
 	_ = http.ListenAndServe(":3000", nil)
 }
 
-func checkService(service string, oasVersion string, availability map[string]bool, wg *sync.WaitGroup, m *sync.Mutex) {
-	url := "http://" + service + "/" + oasVersion + "/api-docs"
-	_, err := http.Get(url)
-	m.Lock()
-	availability[service] = err == nil
-	m.Unlock()
-	wg.Done()
+func checkService(service string) {
+	versions := []string{"v2", "v3"}
+	passedVersion := ""
+
+	for _, ver := range versions {
+		url := "http://" + service + "/" + ver + "/api-docs"
+		resp, err := http.Get(url)
+
+		if err == nil && strings.Contains(resp.Status, "200") {
+			passedVersion = ver
+		}
+		if resp != nil {
+			log.Println("for version " + ver + " status code is " + resp.Status)
+		}
+	}
+
+	log.Println("for " + service + " version is " + passedVersion)
+	if passedVersion != "" {
+		cachedAvailableServices = append(cachedAvailableServices, map[string]string{
+			"name": service,
+			"url":  "/" + service + "/" + passedVersion + "/api-docs",
+		})
+	}
 }
 
 func mapValues(vs []string, f func(string) interface{}) []interface{} {
@@ -86,4 +100,13 @@ func mapValues(vs []string, f func(string) interface{}) []interface{} {
 		vsm[i] = f(v)
 	}
 	return vsm
+}
+
+func refreshCache(services []string) {
+	log.Println("Refresh start")
+	cachedAvailableServices = cachedAvailableServices[:0]
+	for _, service := range services {
+		checkService(service)
+	}
+	log.Println("Refresh finish")
 }

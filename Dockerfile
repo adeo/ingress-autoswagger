@@ -30,6 +30,7 @@ COPY ./ ./
 
 # Install dependencies
 RUN go get -u github.com/gobuffalo/packr/packr
+RUN go get -u gopkg.in/robfig/cron.v3
 
 # Build the executable to `/app`. Mark the build as statically linked.
 RUN packr build -installsuffix 'static' -o /app .
