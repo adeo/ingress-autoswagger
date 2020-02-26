@@ -13,11 +13,26 @@ After that you can run this application on Ingress root level (/) and this tool 
 
 ## Usage
 
+### With helm
+
+```bash
+helm repo add lmru https://art.lmru.tech/helm
+helm upgrade --install --namespace \
+ --set services={plaster-calculator,product-binder} --set hostname=$hostname --set version=3.2 \
+ $namespace $release-name lmru/ingress-autoswagger
+```
+
 ### With docker
+
+```bash
 docker run -it -e SERVICES="[\"plaster-calculator\",\"product-binder\"]" docker-devops.art.lmru.tech/bricks/ingress-autoswagger:3.1
+```
 
 ### Without docker
+
+```bash
 SERVICES="[\"plaster-calculator\",\"product-binder\"]" go run ingress-autoswagger.go 
+```
 
 After run you can open http://localhost:3000 in browser.
 
