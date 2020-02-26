@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  ingress-autoswagger
+  labels:
+    app: "ingress-autoswagger"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: "ingress-autoswagger"
+      release: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "ingress-autoswagger"
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: ingress-autoswagger
+          image: "{{.Values.imageName}}:{{ .Values.version }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: SERVICES
+              value: {{ .Values.services | toJson | quote }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+          resources:
+            limits:
+              cpu: 50m
+              memory:  50Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-autoswagger
+  labels:
+    app: "ingress-autoswagger"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: application
+  selector:
+    app: "ingress-autoswagger"
+    release: {{ .Release.Name }}
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-autoswagger
+  labels:
+    app: "ingress-autoswagger"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: {{ .Values.hostname }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: ingress-autoswagger
+              servicePort: 80
+  tls:
+    - hosts:
+        - {{ .Values.hostname }}

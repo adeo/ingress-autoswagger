@@ -1,0 +1,3 @@
+enabled: true
+version: "3.2"
+imageName: "docker.art.lmru.tech/bricks/ingress-autoswagger"
