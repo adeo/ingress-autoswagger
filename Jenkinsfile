@@ -36,7 +36,7 @@ def helm_push() {
     withCredentials([usernamePassword(credentialsId: 'helm-bricks-local-repo', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
         sh("docker run -v $currentPath:/pwd docker.art.lmru.tech/img-k8s-deployer:latest \
                 /bin/bash -c 'helm repo add --username $USERNAME --password $PASSWORD bricks https://art.lmru.tech/helm-local-bricks; \
-                helm push-artifactory pwd/helm ingress-autoswagger'")
+                helm push-artifactory pwd/helm bricks'")
 
     }
 }
