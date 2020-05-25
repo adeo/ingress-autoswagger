@@ -28,6 +28,10 @@ spec:
           env:
             - name: SERVICES
               value: {{ .Values.services | toJson | quote }}
+            {{ if .Values.refreshCron }}
+            - name: REFRESH_CRON
+              value: {{ quote .Values.refreshCron }}
+            {{ end }}
           livenessProbe:
             httpGet:
               path: /
@@ -80,7 +84,7 @@ spec:
     - host: {{ .Values.hostname }}
       http:
         paths:
-          - path: /
+          - path: {{ .Values.ingressPath | default "/" }}
             backend:
               serviceName: ingress-autoswagger
               servicePort: 80
