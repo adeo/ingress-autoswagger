@@ -46,5 +46,6 @@ packr build .
 
 ## Maintainers
 
-Dmitrii Sugrobov dmitrii.sugrobov@leroymerlin.ru
-Stanislav Myachenkov stanislav.miachenkov@leroymerlin.ru
+Dmitrii Sugrobov @dsugrobov
+
+Nikita Medvedev @MisterRnobe
