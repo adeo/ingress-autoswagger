@@ -25,13 +25,13 @@ helm upgrade --install --namespace \
 ### With docker
 
 ```bash
-docker run -it -e SERVICES="[\"plaster-calculator\",\"product-binder\"]" docker-devops.art.lmru.tech/bricks/ingress-autoswagger:3.1
+docker run -it -e SERVICES="[\"plaster-calculator\",\"product-binder\"]" -e VERSIONS="[\"v2\",\"v3\"]" docker-devops.art.lmru.tech/bricks/ingress-autoswagger:3.1
 ```
 
 ### Without docker
 
 ```bash
-SERVICES="[\"plaster-calculator\",\"product-binder\"]" go run ingress-autoswagger.go 
+SERVICES="[\"plaster-calculator\",\"product-binder\"]" VERSIONS="[\"v2\",\"v3\"]" go run ingress-autoswagger.go 
 ```
 
 After run you can open http://localhost:3000 in browser.

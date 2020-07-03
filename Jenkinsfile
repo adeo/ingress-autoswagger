@@ -1,5 +1,5 @@
 node('dockerhost') {
-    env.TAG = '3.2'
+    env.TAG = '3.3'
     env.DOCKER_IMAGE = 'docker-devops.art.lmru.tech/bricks/ingress-autoswagger'
     env.DOCKER_REGISTRY_CREDS = 'lm-sa-devops'
 
