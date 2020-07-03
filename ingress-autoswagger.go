@@ -2,41 +2,50 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gobuffalo/packr"
 	"gopkg.in/robfig/cron.v3"
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
 )
 
 //service to oas version
 var cachedAvailableServices = make([]map[string]string, 0)
+var versions = make([]string, 0)
 
 func main() {
-	servicesEnv := os.Getenv("SERVICES")
 	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
 	if !exists {
 		refreshCron = "@every 1m"
 	}
 
+	servicesEnv := os.Getenv("SERVICES")
 	if servicesEnv == "" {
 		log.Println("Environment variable \"SERVICES\" is empty")
 		os.Exit(2)
 	}
 	services := make([]string, 0)
-	parsed := mapValues(strings.Split(servicesEnv[1:len(servicesEnv)-1], ","), func(s string) interface{} {
+	services = mapValues(strings.Split(servicesEnv[1:len(servicesEnv)-1], ","), func(s string) string {
 		return s[1 : len(s)-1]
 	})
+	sort.Strings(services)
 
-	for _, str := range parsed {
-		services = append(services, fmt.Sprintf("%v", str))
+	//set versions
+	versionsEnv, versionsEnvExists := os.LookupEnv("VERSIONS")
+	if versionsEnvExists {
+		versions = mapValues(strings.Split(versionsEnv[1:len(versionsEnv)-1], ","), func(s string) string {
+			return s[1 : len(s)-1]
+		})
+	} else {
+		versions = []string{"v2", "v3"}
 	}
 
 	log.Println("Server started on 3000 port!")
-	log.Println(services)
+	log.Println("Services:", services)
+	log.Println("Discovering versions:", versions)
 	html, err := packr.NewBox("./templates").FindString("index.html")
 	if err != nil {
 		panic(err)
@@ -70,7 +79,6 @@ func main() {
 }
 
 func checkService(service string) {
-	versions := []string{"v2", "v3"}
 	passedVersion := ""
 
 	for _, ver := range versions {
@@ -85,7 +93,7 @@ func checkService(service string) {
 		}
 	}
 
-	log.Println("for " + service + " version is " + passedVersion)
+	log.Println("for " + service + " version is '" + passedVersion + "'")
 	if passedVersion != "" {
 		cachedAvailableServices = append(cachedAvailableServices, map[string]string{
 			"name": service,
@@ -94,8 +102,8 @@ func checkService(service string) {
 	}
 }
 
-func mapValues(vs []string, f func(string) interface{}) []interface{} {
-	vsm := make([]interface{}, len(vs))
+func mapValues(vs []string, f func(string) string) []string {
+	vsm := make([]string, len(vs))
 	for i, v := range vs {
 		vsm[i] = f(v)
 	}

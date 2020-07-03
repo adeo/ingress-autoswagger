@@ -32,6 +32,10 @@ spec:
             - name: REFRESH_CRON
               value: {{ quote .Values.refreshCron }}
             {{ end }}
+            {{ if .Values.discoveringVersion }}
+            - name: VERSIONS
+              value: {{ .Values.discoveringVersion | toJson | quote }}
+            {{ end }}
           livenessProbe:
             httpGet:
               path: /

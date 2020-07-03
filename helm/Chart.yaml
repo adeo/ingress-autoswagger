@@ -1,4 +1,4 @@
 apiVersion: v1
 description: Chart for ingress-autoswagger – provides swagger-ui for all specifed in SERVICES env endpoints
 name: ingress-autoswagger
-version: 1.0.1
+version: 1.0.2
