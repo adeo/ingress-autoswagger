@@ -49,3 +49,5 @@ packr build .
 Dmitrii Sugrobov @dsugrobov
 
 Nikita Medvedev @MisterRnobe
+
+Stanislav Myachenkov @smyachenkov
