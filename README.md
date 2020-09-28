@@ -4,7 +4,7 @@ Typically used with Kubernetes where this app listens the root and each microser
 
 ## How it works
 Assume, you have three microservices `cart`, `delivery`, and `payment` deployed on the same host.
-To make this works, each application should expose [Open API JSON](https://swagger.io/specification/) on `/{version}/api-docs`. 
+To make this work, each application should expose [Open API JSON](https://swagger.io/specification/) on `/{version}/api-docs`. 
 For example:
 
 * `/cart/v3/api-docs`
