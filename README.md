@@ -49,16 +49,12 @@ After run you can open http://localhost:3000 in browser.
 
 ## Development & Build
 
-0. The tool written in simple Go language, so one that you need it to have installed Go.
-1. Install dependencies
-go get -u github.com/gobuffalo/packr/packr
-2. Build with packr (syntax the same with typical 'go build' command)
-packr build .
+1. The tool written in simple Go language, so one that you need is to have installed Go.
+1. Install dependencies `go get -u github.com/gobuffalo/packr/packr`
+1. Build with packr (syntax the same with typical 'go build' command) `packr build .`
 
 ## Maintainers
 
-Dmitrii Sugrobov @voborgus
-
-Nikita Medvedev @MisterRnobe
-
-Stanislav Myachenkov @smyachenkov
+* Dmitrii Sugrobov @voborgus
+* Nikita Medvedev @MisterRnobe
+* Stanislav Myachenkov @smyachenkov
