@@ -1,6 +1,9 @@
 # Ingress Autoswagger
-A small Go application provides Swagger UI for all services listed in the environment variable. 
-Typically used with Kubernetes where this app listens the root and each microservice exposed with Ingress on subdirectories.
+A small Go application creates UI for APIs for services with OpenAPI JSON endpoints.
+
+**When it's useful:** You're running a set of microservices on top of Kubernetes and expose them with Ingress on sub-paths.
+Each of them has OpenAPI `/api-docs` of their APIs.
+Start Ingress Autoswagger in the root `/` path, specify names of services and you will get a single Swagger UI for all services.
 
 ## How it works
 Assume, you have three microservices `cart`, `delivery`, and `payment` deployed on the same host.
