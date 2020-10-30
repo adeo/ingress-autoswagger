@@ -90,6 +90,7 @@ func checkService(service string) {
 		}
 		if resp != nil {
 			log.Println("for version " + ver + " status code is " + resp.Status)
+			resp.Body.Close()
 		}
 	}
 
