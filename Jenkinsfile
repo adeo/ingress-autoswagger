@@ -42,10 +42,15 @@ def helm_push() {
 }
 
 def image_build_and_push() {
-    def image = docker.build("${env.DOCKER_IMAGE}:${env.TAG_NAME}", ".")
+    if (env.TAG_NAME) {
+        TAG = env.TAG_NAME
+    } else {
+        TAG = BRANCH_NAME
+    }
+    def image = docker.build("${env.DOCKER_IMAGE}:${TAG}", ".")
     try {
         docker.withRegistry("https://$DOCKER_IMAGE", "$DOCKER_REGISTRY_CREDS") {
-            image.push('$TAG_NAME')
+            image.push("$TAG")
         }
     }
     finally {
