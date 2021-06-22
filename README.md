@@ -23,6 +23,7 @@ The application finds the right version of the specification for each service an
 
 * **SERVICES** *`required`* array of services to look up
 * **VERSIONS**  *`default: ["v2", "v3"]`* array of versions of specifications used in microservices
+* **VERSION_FORMAT**  *`default: "json"`* string variable for swagger format used in microservices. Can be `"yml"`
 * **REFRESH_CRON** *`default: @every 1m`* schedule for check liveness of applications
 
 ## Usage

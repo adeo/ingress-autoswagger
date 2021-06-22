@@ -15,6 +15,7 @@ import (
 //service to oas version
 var cachedAvailableServices = make([]map[string]string, 0)
 var versions = make([]string, 0)
+var versionsFormat = ""
 
 func main() {
 	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
@@ -35,6 +36,7 @@ func main() {
 
 	//set versions
 	versionsEnv, versionsEnvExists := os.LookupEnv("VERSIONS")
+	
 	if versionsEnvExists {
 		versions = mapValues(strings.Split(versionsEnv[1:len(versionsEnv)-1], ","), func(s string) string {
 			return s[1 : len(s)-1]
@@ -80,9 +82,17 @@ func main() {
 
 func checkService(service string) {
 	passedVersion := ""
+	passedFormat := ""
+	versionsFormat:= os.Getenv("VERSION_FORMAT")
 
 	for _, ver := range versions {
-		url := "http://" + service + "/" + ver + "/api-docs"
+		
+		if versionsFormat != "json" {
+	      // log.Println("Trying swagger format: " + versionsFormat)
+		  passedFormat = "." + versionsFormat
+		}
+		url := "http://" + service + "/" + ver + "/api-docs" + passedFormat
+		// log.Println("Trying url: " + url)
 		resp, err := http.Get(url)
 
 		if err == nil && strings.Contains(resp.Status, "200") {
@@ -98,7 +108,7 @@ func checkService(service string) {
 	if passedVersion != "" {
 		cachedAvailableServices = append(cachedAvailableServices, map[string]string{
 			"name": service,
-			"url":  "/" + service + "/" + passedVersion + "/api-docs",
+			"url":  "/" + service + "/" + passedVersion + "/api-docs" + passedFormat,
 		})
 	}
 }
