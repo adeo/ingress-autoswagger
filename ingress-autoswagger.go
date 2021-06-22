@@ -88,11 +88,11 @@ func checkService(service string) {
 	for _, ver := range versions {
 		
 		if versionsFormat != "json" {
-	      // log.Println("Trying swagger format: " + versionsFormat)
+	          log.Println("Trying swagger format: " + versionsFormat)
 		  passedFormat = "." + versionsFormat
 		}
 		url := "http://" + service + "/" + ver + "/api-docs" + passedFormat
-		// log.Println("Trying url: " + url)
+		log.Println("Trying url: " + url)
 		resp, err := http.Get(url)
 
 		if err == nil && strings.Contains(resp.Status, "200") {
