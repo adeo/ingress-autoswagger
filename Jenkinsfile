@@ -54,6 +54,6 @@ def image_build_and_push() {
         }
     }
     finally {
-        sh "docker rmi $DOCKER_IMAGE:$TAG_NAME"
+        sh "docker rmi $DOCKER_IMAGE:$TAG"
     }
 }
