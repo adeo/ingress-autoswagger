@@ -83,13 +83,13 @@ func main() {
 func checkService(service string) {
 	passedVersion := ""
 	passedFormat := ""
-	versionsFormat:= os.Getenv("VERSION_FORMAT")
+	versionsFormat, versionsFormatExists := os.LookupEnv("VERSION_FORMAT")
 
 	for _, ver := range versions {
-		
-		if versionsFormat != "json" {
-	          log.Println("Trying swagger format: " + versionsFormat)
-		  passedFormat = "." + versionsFormat
+
+		if versionsFormatExists {
+			log.Println("Trying swagger format: " + versionsFormat)
+			if versionsFormat != "json" { passedFormat = "." + versionsFormat }
 		}
 		url := "http://" + service + "/" + ver + "/api-docs" + passedFormat
 		log.Println("Trying url: " + url)
