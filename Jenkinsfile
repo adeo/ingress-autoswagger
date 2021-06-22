@@ -1,4 +1,5 @@
 node('dockerhost') {
+    
     env.DOCKER_IMAGE = 'docker-devops.art.lmru.tech/bricks/ingress-autoswagger'
     env.DOCKER_REGISTRY_CREDS = 'lm-sa-devops'
 
@@ -41,13 +42,13 @@ def helm_push() {
 }
 
 def image_build_and_push() {
-    def image = docker.build("${env.DOCKER_IMAGE}:${env.GIT_TAG}", ".")
+    def image = docker.build("${env.DOCKER_IMAGE}:${env.TAG_NAME}", ".")
     try {
         docker.withRegistry("https://$DOCKER_IMAGE", "$DOCKER_REGISTRY_CREDS") {
-            image.push('$GIT_TAG')
+            image.push('$TAG_NAME')
         }
     }
     finally {
-        sh "docker rmi $DOCKER_IMAGE:$GIT_TAG"
+        sh "docker rmi $DOCKER_IMAGE:$TAG_NAME"
     }
 }
