@@ -15,7 +15,7 @@ import (
 //service to oas version
 var cachedAvailableServices = make([]map[string]string, 0)
 var versions = make([]string, 0)
-var versionsFormatEnv = ""
+var versionsExtension = ""
 
 func main() {
 	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
@@ -36,7 +36,9 @@ func main() {
 
 	//set versions
 	versionsEnv, versionsEnvExists := os.LookupEnv("VERSIONS")
+	versionsFormatEnv, versionsFormatEnvExists := os.LookupEnv("VERSION_FORMAT")
 	
+
 	if versionsEnvExists {
 		versions = mapValues(strings.Split(versionsEnv[1:len(versionsEnv)-1], ","), func(s string) string {
 			return s[1 : len(s)-1]
@@ -45,9 +47,14 @@ func main() {
 		versions = []string{"v2", "v3"}
 	}
 
+	if versionsFormatEnvExists {
+		log.Println("Trying swagger format: " + versionsFormatEnv)
+		if versionsFormatEnv != "json" { versionsExtension = "." + versionsFormatEnv }
+	}
+
 	log.Println("Server started on 3000 port!")
 	log.Println("Services:", services)
-	log.Println("Discovering versions:", versions)
+	log.Println("Discovering versions:", versions, " with extension", versionsFormatEnv)
 	html, err := packr.NewBox("./templates").FindString("index.html")
 	if err != nil {
 		panic(err)
@@ -81,17 +88,10 @@ func main() {
 }
 
 func checkService(service string) {
-	passedVersion := ""
-	passedFormat := ""
-	versionsFormatEnv, versionsFormatEnvExists := os.LookupEnv("VERSION_FORMAT")
 
 	for _, ver := range versions {
 
-		if versionsFormatEnvExists {
-			log.Println("Trying swagger format: " + versionsFormatEnv)
-			if versionsFormatEnv != "json" { passedFormat = "." + versionsFormatEnv }
-		}
-		url := "http://" + service + "/" + ver + "/api-docs" + passedFormat
+		url := "http://" + service + "/" + ver + "/api-docs" + versionsExtension
 		log.Println("Trying url: " + url)
 		resp, err := http.Get(url)
 
