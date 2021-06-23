@@ -88,7 +88,7 @@ func main() {
 }
 
 func checkService(service string) {
-
+	passedVersion := ""
 	for _, ver := range versions {
 
 		url := "http://" + service + "/" + ver + "/api-docs" + versionsExtension
@@ -108,7 +108,7 @@ func checkService(service string) {
 	if passedVersion != "" {
 		cachedAvailableServices = append(cachedAvailableServices, map[string]string{
 			"name": service,
-			"url":  "/" + service + "/" + passedVersion + "/api-docs" + passedFormat,
+			"url":  "/" + service + "/" + passedVersion + "/api-docs" + versionsExtension,
 		})
 	}
 }
