@@ -15,7 +15,7 @@ import (
 //service to oas version
 var cachedAvailableServices = make([]map[string]string, 0)
 var versions = make([]string, 0)
-var versionsExtension = ""
+var apidocsExtension = ""
 
 func main() {
 	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
@@ -36,7 +36,7 @@ func main() {
 
 	//set versions
 	versionsEnv, versionsEnvExists := os.LookupEnv("VERSIONS")
-	versionsExtensionEnv, versionsExtensionEnvExists := os.LookupEnv("VERSION_FORMAT")
+	apidocsExtensionEnv, apidocsExtensionEnvExists := os.LookupEnv("APIDOCS_EXTENSION")
 	
 
 	if versionsEnvExists {
@@ -47,14 +47,14 @@ func main() {
 		versions = []string{"v2", "v3"}
 	}
 
-	if versionsExtensionEnvExists {
-		log.Println("Trying swagger format: " + versionsExtensionEnv)
-		if versionsExtensionEnv != "json" { versionsExtension = "." + versionsExtensionEnv }
+	if apidocsExtensionEnvExists {
+		log.Println("Trying swagger extension: " + apidocsExtensionEnv)
+		apidocsExtension = "." + apidocsExtensionEnv
 	}
 
 	log.Println("Server started on 3000 port!")
 	log.Println("Services:", services)
-	log.Println("Discovering versions:", versions, " with extension", versionsExtensionEnv)
+	log.Println("Discovering versions:", versions, " with extension", apidocsExtensionEnv)
 	html, err := packr.NewBox("./templates").FindString("index.html")
 	if err != nil {
 		panic(err)
@@ -91,7 +91,7 @@ func checkService(service string) {
 	passedVersion := ""
 	for _, ver := range versions {
 
-		url := "http://" + service + "/" + ver + "/api-docs" + versionsExtension
+		url := "http://" + service + "/" + ver + "/api-docs" + apidocsExtension
 		log.Println("Trying url: " + url)
 		resp, err := http.Get(url)
 
@@ -108,7 +108,7 @@ func checkService(service string) {
 	if passedVersion != "" {
 		cachedAvailableServices = append(cachedAvailableServices, map[string]string{
 			"name": service,
-			"url":  "/" + service + "/" + passedVersion + "/api-docs" + versionsExtension,
+			"url":  "/" + service + "/" + passedVersion + "/api-docs" + apidocsExtension,
 		})
 	}
 }

@@ -36,9 +36,9 @@ spec:
             - name: VERSIONS
               value: {{ .Values.discoveringVersion | toJson | quote }}
             {{ end }}
-            {{ if .Values.discoveringVersionFormat }}
-            - name: VERSION_FORMAT
-              value: {{ .Values.discoveringVersionFormat }}
+            {{ if .Values.discoveringApidocsExtension }}
+            - name: APIDOCS_EXTENSION
+              value: {{ .Values.discoveringApidocsExtension }}
             {{ end }}
           livenessProbe:
             httpGet:
