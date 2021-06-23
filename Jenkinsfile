@@ -10,7 +10,7 @@ node('dockerhost') {
             }
 
             stage('Build & Push Image') {
-                if (env.CHANGE_ID) {
+                if (env.CHANGE_ID || BRANCH_NAME == "master") {
                     lint()
                 } else {
                     image_build_and_push()

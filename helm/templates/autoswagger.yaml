@@ -36,6 +36,10 @@ spec:
             - name: VERSIONS
               value: {{ .Values.discoveringVersion | toJson | quote }}
             {{ end }}
+            {{ if .Values.discoveringVersionFormat }}
+            - name: VERSION_FORMAT
+              value: {{ .Values.discoveringVersionFormat }}
+            {{ end }}
           livenessProbe:
             httpGet:
               path: /
