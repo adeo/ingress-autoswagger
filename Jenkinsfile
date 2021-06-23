@@ -14,7 +14,9 @@ node('dockerhost') {
                     lint()
                 } else {
                     image_build_and_push()
-                    helm_push()
+                    if (env.TAG_NAME) {
+                        helm_push()
+                    }
                 }
 
             }
