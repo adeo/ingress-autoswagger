@@ -36,7 +36,7 @@ func main() {
 
 	//set versions
 	versionsEnv, versionsEnvExists := os.LookupEnv("VERSIONS")
-	versionsFormatEnv, versionsFormatEnvExists := os.LookupEnv("VERSION_FORMAT")
+	versionsExtensionEnv, versionsExtensionEnvExists := os.LookupEnv("VERSION_FORMAT")
 	
 
 	if versionsEnvExists {
@@ -47,14 +47,14 @@ func main() {
 		versions = []string{"v2", "v3"}
 	}
 
-	if versionsFormatEnvExists {
-		log.Println("Trying swagger format: " + versionsFormatEnv)
-		if versionsFormatEnv != "json" { versionsExtension = "." + versionsFormatEnv }
+	if versionsExtensionEnvExists {
+		log.Println("Trying swagger format: " + versionsExtensionEnv)
+		if versionsExtensionEnv != "json" { versionsExtension = "." + versionsExtensionEnv }
 	}
 
 	log.Println("Server started on 3000 port!")
 	log.Println("Services:", services)
-	log.Println("Discovering versions:", versions, " with extension", versionsFormatEnv)
+	log.Println("Discovering versions:", versions, " with extension", versionsExtensionEnv)
 	html, err := packr.NewBox("./templates").FindString("index.html")
 	if err != nil {
 		panic(err)
