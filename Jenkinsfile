@@ -1,5 +1,5 @@
 node('dockerhost') {
-    env.TAG = '3.3'
+    
     env.DOCKER_IMAGE = 'docker-devops.art.lmru.tech/bricks/ingress-autoswagger'
     env.DOCKER_REGISTRY_CREDS = 'lm-sa-devops'
 
@@ -10,11 +10,13 @@ node('dockerhost') {
             }
 
             stage('Build & Push Image') {
-                if (env.CHANGE_ID) {
+                if (env.CHANGE_ID || BRANCH_NAME == "master") {
                     lint()
                 } else {
                     image_build_and_push()
-                    helm_push()
+                    if (env.TAG_NAME) {
+                        helm_push()
+                    }
                 }
 
             }
@@ -42,10 +44,15 @@ def helm_push() {
 }
 
 def image_build_and_push() {
-    def image = docker.build("${env.DOCKER_IMAGE}:${env.TAG}", ".")
+    if (env.TAG_NAME) {
+        TAG = env.TAG_NAME
+    } else {
+        TAG = BRANCH_NAME
+    }
+    def image = docker.build("${env.DOCKER_IMAGE}:${TAG}", ".")
     try {
         docker.withRegistry("https://$DOCKER_IMAGE", "$DOCKER_REGISTRY_CREDS") {
-            image.push('$TAG')
+            image.push(TAG)
         }
     }
     finally {
