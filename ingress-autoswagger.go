@@ -15,7 +15,7 @@ import (
 //service to oas version
 var cachedAvailableServices = make([]map[string]string, 0)
 var versions = make([]string, 0)
-var versionsFormat = ""
+var versionsFormatEnv = ""
 
 func main() {
 	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
@@ -83,13 +83,13 @@ func main() {
 func checkService(service string) {
 	passedVersion := ""
 	passedFormat := ""
-	versionsFormat, versionsFormatExists := os.LookupEnv("VERSION_FORMAT")
+	versionsFormatEnv, versionsFormatEnvExists := os.LookupEnv("VERSION_FORMAT")
 
 	for _, ver := range versions {
 
-		if versionsFormatExists {
-			log.Println("Trying swagger format: " + versionsFormat)
-			if versionsFormat != "json" { passedFormat = "." + versionsFormat }
+		if versionsFormatEnvExists {
+			log.Println("Trying swagger format: " + versionsFormatEnv)
+			if versionsFormatEnv != "json" { passedFormat = "." + versionsFormatEnv }
 		}
 		url := "http://" + service + "/" + ver + "/api-docs" + passedFormat
 		log.Println("Trying url: " + url)
