@@ -52,7 +52,7 @@ def image_build_and_push() {
     def image = docker.build("${env.DOCKER_IMAGE}:${TAG}", ".")
     try {
         docker.withRegistry("https://$DOCKER_IMAGE", "$DOCKER_REGISTRY_CREDS") {
-            image.push("$TAG")
+            image.push(TAG)
         }
     }
     finally {
