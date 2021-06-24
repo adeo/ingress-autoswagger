@@ -6,4 +6,3 @@ ingressPath: "/"
 discoveringVersion:
   - v2
   - v3
-discoveringVersionFormat: "json"
