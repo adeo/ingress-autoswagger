@@ -15,6 +15,7 @@ import (
 //service to oas version
 var cachedAvailableServices = make([]map[string]string, 0)
 var versions = make([]string, 0)
+var apidocsExtension = ""
 
 func main() {
 	refreshCron, exists := os.LookupEnv("REFRESH_CRON")
@@ -35,6 +36,9 @@ func main() {
 
 	//set versions
 	versionsEnv, versionsEnvExists := os.LookupEnv("VERSIONS")
+	apidocsExtensionEnv, apidocsExtensionEnvExists := os.LookupEnv("APIDOCS_EXTENSION")
+	
+
 	if versionsEnvExists {
 		versions = mapValues(strings.Split(versionsEnv[1:len(versionsEnv)-1], ","), func(s string) string {
 			return s[1 : len(s)-1]
@@ -43,9 +47,14 @@ func main() {
 		versions = []string{"v2", "v3"}
 	}
 
+	if (apidocsExtensionEnvExists && len(apidocsExtensionEnv) != 0) {
+		log.Println("Trying swagger extension: " + apidocsExtensionEnv)
+		apidocsExtension = "." + apidocsExtensionEnv
+	}
+
 	log.Println("Server started on 3000 port!")
 	log.Println("Services:", services)
-	log.Println("Discovering versions:", versions)
+	log.Println("Discovering versions:", versions, " with extension", apidocsExtensionEnv)
 	html, err := packr.NewBox("./templates").FindString("index.html")
 	if err != nil {
 		panic(err)
@@ -80,9 +89,10 @@ func main() {
 
 func checkService(service string) {
 	passedVersion := ""
-
 	for _, ver := range versions {
-		url := "http://" + service + "/" + ver + "/api-docs"
+
+		url := "http://" + service + "/" + ver + "/api-docs" + apidocsExtension
+		log.Println("Trying url: " + url)
 		resp, err := http.Get(url)
 
 		if err == nil && strings.Contains(resp.Status, "200") {
@@ -98,7 +108,7 @@ func checkService(service string) {
 	if passedVersion != "" {
 		cachedAvailableServices = append(cachedAvailableServices, map[string]string{
 			"name": service,
-			"url":  "/" + service + "/" + passedVersion + "/api-docs",
+			"url":  "/" + service + "/" + passedVersion + "/api-docs" + apidocsExtension,
 		})
 	}
 }

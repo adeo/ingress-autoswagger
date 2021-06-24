@@ -23,6 +23,9 @@ The application finds the right version of the specification for each service an
 
 * **SERVICES** *`required`* array of services to look up
 * **VERSIONS**  *`default: ["v2", "v3"]`* array of versions of specifications used in microservices
+* **APIDOCS_EXTENSION**  *`default: ""`* string variable for swagger url suffix used in microservices. 
+* Can be `"yml"` for url: service/v3/api-docs.yml
+* Must be passed through `discoveringApidocsExtension: "yml"` in values.yaml 
 * **REFRESH_CRON** *`default: @every 1m`* schedule for check liveness of applications
 
 ## Usage

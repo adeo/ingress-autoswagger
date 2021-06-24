@@ -36,6 +36,8 @@ spec:
             - name: VERSIONS
               value: {{ .Values.discoveringVersion | toJson | quote }}
             {{ end }}
+            - name: APIDOCS_EXTENSION
+              value: {{ .Values.discoveringApidocsExtension }}
           livenessProbe:
             httpGet:
               path: /
