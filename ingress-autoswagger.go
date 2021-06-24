@@ -47,7 +47,7 @@ func main() {
 		versions = []string{"v2", "v3"}
 	}
 
-	if apidocsExtensionEnvExists {
+	if (apidocsExtensionEnvExists && len(apidocsExtensionEnv) != 0) {
 		log.Println("Trying swagger extension: " + apidocsExtensionEnv)
 		apidocsExtension = "." + apidocsExtensionEnv
 	}
